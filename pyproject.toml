@@ -1,10 +1,19 @@
 [project]
 name = "1stllm"
 version = "0.1.0"
-description = "Add your description here"
+description = "Gemini AI Tool-Calling Chatbot"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
-    "google-genai==1.12.1",
-    "python-dotenv==1.1.0",
+    "google-genai",
+    "python-dotenv",
+    "prompt_toolkit",
+    "requests>=2.32.5",
+    "rdkit>=2025.9.6",
+]
+
+# Move your dev tools here
+[dependency-groups]
+dev = [
+    "pytest",
 ]
