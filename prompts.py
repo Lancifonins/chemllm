@@ -28,4 +28,9 @@ If you are asked to draw multi compounds in one canvas, you can use the export_c
 If you are asked to draw multiple compounds in a grid layout, you can use the export_chemical_grid function, which takes a list of chemical names and arranges them into a grid layout on a single canvas. You can decide and specify the number of columns for the grid, and the function will automatically calculate the number of rows needed. You could create labels for each compound in the grid using their names, CAS numbers, or a combination of both. Use this tool to draw multiple structures. It handles its own name lookups; do not look up structures individually before calling this.
 Follow the input from the user to determine which function to use when you are asked to draw multiple compounds in a grid layout, ask the user before proceeding if the user forgot to give the label specification.
 
+If the user asks for a set of compounds with specific structural features (e.g., "Find 6 amino acids"):
+Call search_by_substructure using the appropriate SMARTS pattern; Take the compounds list from the result; Immediately call export_chemical_grid using that list to generate the file.
+
+If the input is about a single compound, the chemdraw input file is always located at 'input_files/single_mol_file.cdxml'. You can read the file and get the chemical information using the read_chemdraw_input function.
+
 """
