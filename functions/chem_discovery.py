@@ -7,70 +7,74 @@ from rdkit.Chem.Draw import rdMolDraw2D
 import os
 import requests
 import time
+import urllib.parse
 from google import genai
 from google.genai import types
-from functions.get_chem_info import get_compound_by_name
-from functions.chem_files import export_to_chemdraw
-import urllib.parse
+from functions.get_chem_info import *
+from functions.chem_files import *
+from functions.chem_file_utils import *
 #RDLogger.DisableLog('rdApp.*')
 
-def search_by_structure_file(file_path: str, max_results: int = 10, **kwargs):
+def search_by_structure_file(max_results: int = 5, **kwargs):
     """
-    Reads a ChemDraw (.cdxml) or SDF file and uses its structure to 
-    perform a PubChem substructure search.
+    Finds compounds in PubChem containing the drawn substructure 
+    and resolves their names AND CAS numbers.
     """
+    mol, error = read_chemdraw_input()
+    if error:
+        return {"error": error}
+
     try:
-        # 1. Parse the file into an RDKit molecule object
-        if file_path.endswith('.cdxml'):
-            # CDXML is XML-based; RDKit's Molfiles/SMILES parsers are usually separate
-            # We use RDKit's internal CDXML support (if available) or convert via SMILES
-            mol = Chem.MolFromCDXMLFile(file_path)
-        elif file_path.endswith('.sdf'):
-            suppl = Chem.SDMolSupplier(file_path)
-            mol = next(suppl) if suppl else None
-        else:
-            return {"error": "Unsupported format. Please use .cdxml or .sdf"}
-
-        if not mol:
-            return {"error": f"Failed to parse structure from {file_path}"}
-
-        # 2. Convert to SMILES for the API query
         query_smiles = Chem.MolToSmiles(mol)
         
-        # 3. Submit to PubChem via POST (The most stable method)
-        url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/substructure/smiles/JSON"
-        res = requests.post(url, data={'smiles': query_smiles}, timeout=15)
-        
+        # 1. Start Substructure Search
+        search_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/substructure/smiles/JSON"
+        res = requests.post(search_url, data={'smiles': query_smiles}, timeout=15)
         if res.status_code != 202:
-            return {"error": f"PubChem rejected structure: {res.text}"}
+            return {"error": f"Search rejected: {res.text}"}
         
         list_key = res.json().get('Waiting', {}).get('ListKey')
         
-        # 4. Polling for results
-        result_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/listkey/{list_key}/cids/JSON"
+        # 2. Poll for CIDs
+        cids_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/listkey/{list_key}/cids/JSON"
         cids = []
         for _ in range(10):
             time.sleep(2)
-            poll_res = requests.get(result_url)
-            if poll_res.status_code == 200:
-                cids = poll_res.json().get('IdentifierList', {}).get('CID', [])[:max_results]
+            poll = requests.get(cids_url)
+            if poll.status_code == 200:
+                cids = poll.json().get('IdentifierList', {}).get('CID', [])[:max_results]
                 break
         
         if not cids:
-            return {"error": "No matching compounds found for this structure."}
+            return {"message": "No matches found.", "smiles": query_smiles}
 
-        # 5. Resolve CIDs to Names
-        names = []
+        # 3. Resolve names and CAS numbers
+        results = []
         for cid in cids:
-            n_res = requests.get(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/description/JSON")
-            if n_res.status_code == 200:
-                title = n_res.json()['InformationList']['Information'][0].get('Title')
-                if title: names.append(title)
+            # Get Name
+            name_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/description/JSON"
+            name_res = requests.get(name_url)
+            name = "Unknown"
+            if name_res.status_code == 200:
+                info = name_res.json().get('InformationList', {}).get('Information', [{}])[0]
+                name = info.get('Title', "Unknown")
+            
+            # Get CAS using our helper
+            cas = get_cas_from_cid(cid)
+            
+            results.append({
+                "name": name,
+                "cas_number": cas,
+                "pubchem_cid": cid
+            })
         
-        return {"compounds_found": names, "query_smiles": query_smiles}
+        return {
+            "query_smiles": query_smiles,
+            "matches": results
+        }
 
     except Exception as e:
-        return {"error": f"Structural search error: {str(e)}"}
+        return {"error": str(e)}
     
 def get_compounds_by_category(category: str, count: int = 10, **kwargs):
     """Finds compounds for a general class like 'Phenols' or 'Amino Acids'."""
@@ -93,14 +97,12 @@ def get_compounds_by_category(category: str, count: int = 10, **kwargs):
 # Tool 1: The Substructure Search
 schema_search_by_structure_file = types.FunctionDeclaration(
     name="search_by_structure_file",
-    description="Finds compounds in PubChem using a local ChemDraw (.cdxml) or SDF file as the structural query.",
+    description="Finds compounds in PubChem that contain the substructure drawn in the input file. Returns names, CIDs, and CAS numbers.",
     parameters=types.Schema(
         type=types.Type.OBJECT,
         properties={
-            "file_path": types.Schema(type=types.Type.STRING, description="The path to the query file (e.g., 'query.cdxml')."),
-            "max_results": types.Schema(type=types.Type.INTEGER, description="Number of results to return.")
-        },
-        required=["file_path"]
+            "max_results": types.Schema(type=types.Type.INTEGER, description="Limit of compounds to return.")
+        }
     ),
 )
 

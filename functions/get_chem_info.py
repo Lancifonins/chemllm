@@ -164,3 +164,53 @@ schema_get_ghs_hazards = types.FunctionDeclaration(
         required=["name_or_cas"]
     ),
 )
+
+import requests
+import re
+
+def get_cas_from_cid(cid: int, **kwargs):
+    """
+    Stand-alone agent tool to resolve a CID to a CAS number.
+    """
+    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/synonyms/JSON"
+    
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code != 200:
+            return {"error": f"PubChem ID {cid} not found or API unavailable."}
+            
+        data = response.json()
+        synonyms = data.get('InformationList', {}).get('Information', [{}])[0].get('Synonym', [])
+        
+        # Standard CAS pattern: [2-7 digits]-[2 digits]-[1 digit]
+        cas_pattern = re.compile(r'^\d{2,7}-\d{2}-\d$')
+        
+        # Filter synonyms for the first matching CAS format
+        cas_numbers = [s for s in synonyms if cas_pattern.match(s)]
+        
+        if cas_numbers:
+            return {
+                "cid": cid,
+                "cas_number": cas_numbers[0],
+                "all_cas_found": cas_numbers # Sometimes there are multiple
+            }
+        else:
+            return {"cid": cid, "message": "No CAS number found in PubChem synonyms."}
+            
+    except Exception as e:
+        return {"error": f"Request failed: {str(e)}"}
+    
+schema_get_cas_from_cid = types.FunctionDeclaration(
+    name="get_cas_from_cid",
+    description="Converts a PubChem Compound ID (CID) into a Chemical Abstracts Service (CAS) registry number by searching through synonyms.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "cid": types.Schema(
+                type=types.Type.INTEGER, 
+                description="The PubChem CID to look up (e.g., 2244 for Aspirin)."
+            )
+        },
+        required=["cid"]
+    ),
+)

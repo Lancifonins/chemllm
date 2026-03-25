@@ -1,3 +1,6 @@
+import sys
+print(f"DEBUG: Python is running from: {sys.executable}")
+
 import os
 from dotenv import load_dotenv
 import argparse

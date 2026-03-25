@@ -29,7 +29,9 @@ available_functions = types.Tool(
                            schema_export_chemical_grid,
                            schema_search_by_structure_file,
                            schema_get_compounds_by_category,
-                           schema_read_chemdraw_input
+                           schema_read_chemdraw_input,
+                           schema_get_input_structure_info,
+                           schema_get_cas_from_cid
                           ],
 )
 
@@ -50,5 +52,7 @@ call_function_map = {
     "export_chemical_grid": export_chemical_grid,
     "search_by_structure_file": search_by_structure_file,
     "get_compounds_by_category": get_compounds_by_category,
-    "read_chemdraw_input": read_chemdraw_input
+    "read_chemdraw_input": read_chemdraw_input,
+    "get_input_structure_info": get_input_structure_info,
+    "get_cas_from_cid": get_cas_from_cid
 }
