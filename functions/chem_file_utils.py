@@ -14,9 +14,6 @@ from functions.get_chem_info import get_compound_by_name
 from functions.chem_files import export_to_chemdraw
 import urllib.parse
 
-import os
-from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
 
 def read_chemdraw_input(filename="single_mol_file.sdf", **kwargs):
     """
