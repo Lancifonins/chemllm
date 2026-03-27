@@ -31,7 +31,8 @@ available_functions = types.Tool(
                            schema_get_compounds_by_category,
                            schema_read_chemdraw_input,
                            schema_get_input_structure_info,
-                           schema_get_cas_from_cid
+                           schema_get_cas_from_cid,
+                           schema_check_commercial_availability
                           ],
 )
 
@@ -54,5 +55,6 @@ call_function_map = {
     "get_compounds_by_category": get_compounds_by_category,
     "read_chemdraw_input": read_chemdraw_input,
     "get_input_structure_info": get_input_structure_info,
-    "get_cas_from_cid": get_cas_from_cid
+    "get_cas_from_cid": get_cas_from_cid,
+    "check_commercial_availability": check_commercial_availability
 }

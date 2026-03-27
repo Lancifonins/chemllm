@@ -214,3 +214,71 @@ schema_get_cas_from_cid = types.FunctionDeclaration(
         required=["cid"]
     ),
 )
+
+def check_commercial_availability(identifier, **kwargs):
+    """
+    Checks if a chemical is commercially available using either a 
+    PubChem CID (int) or a CAS Number (str).
+    """
+    cid = None
+    
+    # 1. Handle Input Type
+    if isinstance(identifier, str) and re.match(r'^\d{2,7}-\d{2}-\d$', identifier):
+        # Resolve CAS to CID first
+        res = requests.get(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{identifier}/cids/JSON")
+        if res.status_code == 200:
+            cid = res.json().get('IdentifierList', {}).get('CID', [None])[0]
+        else:
+            return {"error": f"Could not find a CID for CAS {identifier}"}
+    elif isinstance(identifier, int) or (isinstance(identifier, str) and identifier.isdigit()):
+        cid = int(identifier)
+    else:
+        return {"error": "Invalid input. Please provide a CID (int) or CAS (str: ###-##-#)."}
+
+    # 2. Query PubChem for Data Sources/Vendors
+    # This endpoint specifically lists the providers of the substance
+    sources_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/sources/JSON"
+    
+    try:
+        response = requests.get(sources_url, timeout=10)
+        if response.status_code != 200:
+            return {"cid": cid, "available": False, "message": "No vendor data found."}
+            
+        data = response.json()
+        # PubChem separates sources into 'Category'. We want 'Chemical Vendors'.
+        sources = data.get('InformationList', {}).get('Information', [])
+        
+        vendors = []
+        for entry in sources:
+            # Not all sources are vendors (some are databases or government labs)
+            # We check the 'RegistryName' or the vendor list if available
+            source_name = entry.get('SourceName')
+            if source_name:
+                vendors.append(source_name)
+        
+        # We limit the return list so the agent isn't overwhelmed by 500 vendors
+        return {
+            "cid": cid,
+            "is_commercially_available": len(vendors) > 0,
+            "vendor_count": len(vendors),
+            "top_vendors": vendors[:10],
+            "pubchem_source_url": f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}#section=Chemical-Vendors"
+        }
+            
+    except Exception as e:
+        return {"error": f"Availability check failed: {str(e)}"}
+    
+schema_check_commercial_availability = types.FunctionDeclaration(
+    name="check_commercial_availability",
+    description="Determines if a chemical is available for purchase. Accepts either a PubChem CID or a CAS Number.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "identifier": types.Schema(
+                type=types.Type.STRING, 
+                description="The identifier to check. Can be a CAS number (e.g., '50-78-2') or a CID (e.g., '2244')."
+            )
+        },
+        required=["identifier"]
+    ),
+)
