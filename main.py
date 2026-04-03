@@ -1,5 +1,6 @@
 import sys
-print(f"DEBUG: Python is running from: {sys.executable}")
+#Use this for python path debugging if needed. Uncomment the line below to see which Python executable is being used.
+#print(f"DEBUG: Python is running from: {sys.executable}")
 
 import os
 from dotenv import load_dotenv

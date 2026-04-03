@@ -11,28 +11,33 @@ from functions.chem_reactions import *
 from functions.chem_grids import *
 from functions.chem_discovery import *
 from functions.chem_file_utils import *
+from functions.lit_tools import *
 
 available_functions = types.Tool(
-    function_declarations=[schema_get_files_info,
-                           schema_get_file_content,
-                           schema_run_python_file,
-                           schema_write_file,
-                           schema_get_compound_by_cas,
-                           schema_get_compound_by_name,
-                           schema_get_ghs_hazards,
-                           schema_export_to_chemdraw,
-                           schema_read_chemdraw_file,
-                           schema_batch_export_sdfs,
-                           schema_export_combined_canvas,
-                           schema_export_reaction_canvas,
-                           schema_draw_reaction,
-                           schema_export_chemical_grid,
-                           schema_search_by_structure_file,
-                           schema_get_compounds_by_category,
-                           schema_read_chemdraw_input,
-                           schema_get_input_structure_info,
-                           schema_get_cas_from_cid,
-                           schema_check_commercial_availability
+    function_declarations=[
+        schema_get_files_info,
+        schema_get_file_content,
+        schema_run_python_file,
+        schema_write_file,
+        schema_get_compound_by_cas,
+        schema_get_compound_by_name,
+        schema_get_ghs_hazards,
+        schema_export_to_chemdraw,
+        schema_read_chemdraw_file,
+        schema_batch_export_sdfs,
+        schema_export_combined_canvas,
+        schema_export_reaction_canvas,
+        schema_draw_reaction,
+        schema_export_chemical_grid,
+        schema_search_by_structure_file,
+        schema_get_compounds_by_category,
+        schema_read_chemdraw_input,
+        schema_get_input_structure_info,
+        schema_get_cas_from_cid,
+        schema_check_commercial_availability,
+        schema_get_paper_link_by_doi,
+        schema_search_author_recent_work,
+        schema_manage_watchlist
                           ],
 )
 
@@ -56,5 +61,8 @@ call_function_map = {
     "read_chemdraw_input": read_chemdraw_input,
     "get_input_structure_info": get_input_structure_info,
     "get_cas_from_cid": get_cas_from_cid,
-    "check_commercial_availability": check_commercial_availability
+    "check_commercial_availability": check_commercial_availability,
+    "get_paper_link_by_doi": get_paper_link_by_doi,
+    "search_author_recent_work": search_author_recent_work,
+    "manage_watchlist": manage_watchlist
 }
