@@ -38,16 +38,12 @@ def call_function(function_call, verbose=False):
 
     args["working_directory"] = "."  # Default working directory for all functions; can be overridden for specific functions below
 
-    # 2. SELECTIVE INJECTION
-    # Only add working_directory to tools that interact with the local filesystem
     file_system_tools = ["get_file_content", "get_files_info", "run_python_file", "write_file"]
     
     if function_name in file_system_tools:
         args["working_directory"] = "."  # or any specific directory you want to restrict to
 
-    # 3. SAFE EXECUTION
     try:
-        # We execute the function from the map
         result = function_map[function_name](**args)
         function_result = str(result)
     except TypeError as e:

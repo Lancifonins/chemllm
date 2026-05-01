@@ -51,7 +51,6 @@ def search_by_structure_file(max_results: int = 5, **kwargs):
         # 3. Resolve names and CAS numbers
         results = []
         for cid in cids:
-            # Get Name
             name_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/description/JSON"
             name_res = requests.get(name_url)
             name = "Unknown"
@@ -59,7 +58,6 @@ def search_by_structure_file(max_results: int = 5, **kwargs):
                 info = name_res.json().get('InformationList', {}).get('Information', [{}])[0]
                 name = info.get('Title', "Unknown")
             
-            # Get CAS using our helper
             cas = get_cas_from_cid(cid)
             
             results.append({
@@ -94,7 +92,6 @@ def get_compounds_by_category(category: str, count: int = 10, **kwargs):
     except Exception as e:
         return {"error": str(e)}
     
-# Tool 1: The Substructure Search
 schema_search_by_structure_file = types.FunctionDeclaration(
     name="search_by_structure_file",
     description="Finds compounds in PubChem that contain the substructure drawn in the input file. Returns names, CIDs, and CAS numbers.",
@@ -106,7 +103,6 @@ schema_search_by_structure_file = types.FunctionDeclaration(
     ),
 )
 
-# Tool 2: The Category Search (e.g., 'Amino Acids')
 schema_get_compounds_by_category = types.FunctionDeclaration(
     name="get_compounds_by_category",
     description="Fetches a set of compounds belonging to a specific biological or chemical class.",
