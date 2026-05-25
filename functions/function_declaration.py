@@ -12,6 +12,7 @@ from functions.chem_grids import *
 from functions.chem_discovery import *
 from functions.chem_file_utils import *
 from functions.lit_tools import *
+from functions.visual_tool import *
 
 available_functions = types.Tool(
     function_declarations=[
@@ -37,7 +38,8 @@ available_functions = types.Tool(
         schema_check_commercial_availability,
         schema_get_paper_link_by_doi,
         schema_search_author_recent_work,
-        schema_manage_watchlist
+        schema_manage_watchlist,
+        schema_image_to_cdxml
                           ],
 )
 
@@ -64,5 +66,6 @@ call_function_map = {
     "check_commercial_availability": check_commercial_availability,
     "get_paper_link_by_doi": get_paper_link_by_doi,
     "search_author_recent_work": search_author_recent_work,
-    "manage_watchlist": manage_watchlist
+    "manage_watchlist": manage_watchlist,
+    "image_to_cdxml": image_to_cdxml
 }

@@ -1,5 +1,5 @@
 [project]
-name = "1stllm"
+name = "chemllm"
 version = "0.1.0"
 description = "Gemini AI Tool-Calling Chatbot"
 readme = "README.md"
