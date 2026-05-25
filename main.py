@@ -1,7 +1,8 @@
 import sys
-print("\n--- WARNING: RUNNING PYTHON AT ---")
-print(sys.executable)
-print("----------------------------------\n")
+#debug:
+#print("\n--- WARNING: RUNNING PYTHON AT ---")
+#print(sys.executable)
+#print("----------------------------------\n")
 
 import os
 from dotenv import load_dotenv
