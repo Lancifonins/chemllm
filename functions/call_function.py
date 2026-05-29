@@ -1,16 +1,26 @@
 import os
 from google import genai
 from google.genai import types
-from functions.get_files_info import *
-from functions.get_file_content import *
-from functions.run_python_file import *
-from functions.write_file import *
-from functions.get_chem_info import *
-from functions.chem_files import *
-from functions.chem_reactions import *
-from functions.chem_grids import *
-from functions.chem_discovery import *
-from functions.chem_file_utils import *
+
+#file processing tools
+from functions.file_tools.get_files_info import *
+from functions.file_tools.get_file_content import *
+from functions.file_tools.run_python_file import *
+from functions.file_tools.write_file import *
+from functions.file_tools.csv_tools import *
+
+#chemistry processing tools
+from functions.chem_tools.get_chem_info import *
+from functions.chem_tools.chem_files import *
+from functions.chem_tools.chem_reactions import *
+from functions.chem_tools.chem_grids import *
+from functions.chem_tools.chem_discovery import *
+from functions.chem_tools.chem_file_utils import *
+from functions.chem_tools.visual_tool import *
+
+#literature searching tools
+from functions.lit_tools.lit_tools import *
+
 from functions.function_declaration import *
 
 def call_function(function_call, verbose=False):

@@ -48,4 +48,6 @@ CRITICAL FORMATTING RULE FOR LITERATURE:
 Whenever you provide a paper, article, or resource to the user, you MUST format the URL as a standard Markdown link. 
 Do not just print the raw URL. 
 Format it exactly like this: [Title of the Paper](https://your-url-here.com)
+
+You could check if a chemical is in stock by using the check inventory tool. If you are asked about the locations of that compound, you could use the search_csv tool to search the inventory and return all the lines that contains that CAS number.
 """

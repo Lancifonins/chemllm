@@ -10,9 +10,9 @@ import time
 import urllib.parse
 from google import genai
 from google.genai import types
-from functions.get_chem_info import *
-from functions.chem_files import *
-from functions.chem_file_utils import *
+from functions.chem_tools.get_chem_info import *
+from functions.chem_tools.chem_files import *
+from functions.chem_tools.chem_file_utils import *
 #RDLogger.DisableLog('rdApp.*')
 
 def search_by_structure_file(max_results: int = 5, **kwargs):

@@ -8,7 +8,7 @@ import os
 import requests
 from google import genai
 from google.genai import types
-from functions.get_chem_info import get_compound_by_name
+from functions.chem_tools.get_chem_info import get_compound_by_name
 
 RDLogger.DisableLog('rdApp.*')
 

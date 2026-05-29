@@ -58,9 +58,6 @@ schema_get_compound_by_cas = types.FunctionDeclaration(
     ),
 )
 
-
-# In functions/get_chem_info.py
-
 def get_compound_by_name(name: str, **kwargs) -> dict:
     """
     Retrieves chemical information including CAS, weight, formula, and SMILES using a name.
@@ -97,7 +94,7 @@ def get_compound_by_name(name: str, **kwargs) -> dict:
             "molecular_weight": props.get("MolecularWeight"),
             "formula": props.get("MolecularFormula"),
             "smiles": props.get("CanonicalSMILES"),
-            "cas_number": cas_number, # <-- Added this
+            "cas_number": cas_number, 
             "pubchem_cid": cid
         }
 
@@ -164,9 +161,6 @@ schema_get_ghs_hazards = types.FunctionDeclaration(
         required=["name_or_cas"]
     ),
 )
-
-import requests
-import re
 
 def get_cas_from_cid(cid: int, **kwargs):
     """
@@ -281,4 +275,67 @@ schema_check_commercial_availability = types.FunctionDeclaration(
         },
         required=["identifier"]
     ),
+)
+
+def get_compound_density(compound_name, **kwargs):
+    """Fetches experimental density data from the PubChem API."""
+    try:
+        # Step 1: Convert the chemical name into a PubChem CID (Compound ID)
+        cid_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/cids/JSON"
+        cid_response = requests.get(cid_url)
+        
+        if cid_response.status_code != 200:
+             return {"error": f"Could not find PubChem ID for {compound_name}."}
+             
+        cid = cid_response.json()['IdentifierList']['CID'][0]
+
+        # Step 2: Hit the specialized 'data view' endpoint filtered exactly for Density
+        density_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON?heading=Density"
+        density_response = requests.get(density_url)
+        
+        if density_response.status_code == 404:
+            return {"error": f"PubChem has no experimental density data for {compound_name}."}
+            
+        data = density_response.json()
+        
+        # Step 3: Dig into PubChem's nested JSON to extract the text values
+        info_list = data['Record']['Section'][0]['Section'][0]['Information']
+        
+        densities = []
+        for info in info_list:
+            if 'Value' in info and 'StringWithMarkup' in info['Value']:
+                # PubChem usually lists the value along with the temperature it was recorded at
+                densities.append(info['Value']['StringWithMarkup'][0]['String'])
+                
+        if not densities:
+             return {"error": "Density data structure was empty."}
+
+        return {
+            "success": True,
+            "compound": compound_name,
+            # We return the top 3 results, as density changes with temperature 
+            # and the agent can read them to give the best answer.
+            "density_data": densities[:3] 
+        }
+
+    except Exception as e:
+        return {"error": str(e)}
+
+# --- GEMINI SCHEMA ---
+schema_get_compound_density = types.FunctionDeclaration(
+    name="get_compound_density",
+    description=(
+        "Fetches the experimental physical density of a liquid or solid compound from the PubChem database. "
+        "Use this tool whenever the user asks for the density or specific gravity of a chemical."
+    ),
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "compound_name": types.Schema(
+                type=types.Type.STRING,
+                description="The common name or IUPAC name of the chemical (e.g., 'benzene', 'dichloromethane')."
+            )
+        },
+        required=["compound_name"]
+    )
 )

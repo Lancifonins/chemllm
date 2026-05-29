@@ -1,4 +1,4 @@
-from functions.run_python_file import *
+from functions.file_tools.run_python_file import *
 
 run_python_file("calculator", "main.py")
 run_python_file("calculator", "main.py", ["3 + 5"])

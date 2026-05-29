@@ -1,4 +1,4 @@
-from functions.write_file import *
+from functions.file_tools.write_file import *
 
 write_file("calculator", "lorem.txt", "wait, this isn't lorem ipsum")
 write_file("calculator", "pkg/morelorem.txt", "lorem ipsum dolor sit amet")
