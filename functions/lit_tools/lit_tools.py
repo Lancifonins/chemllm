@@ -1,7 +1,10 @@
 import requests
+
 from google import genai
 from google.genai import types
+
 from datetime import datetime, timedelta
+
 from modules.author import *
 
 registry = AuthorRegistry()
@@ -71,7 +74,7 @@ def search_author_recent_work(orcid: str = None, name: str = None, days_back: in
     # THE GATEKEEPER: Prioritize ORCID above all else
     if not orcid:
         if name:
-            # Instead of searching, we tell the agent to ask the user
+            # Instead of searching, let the agent to ask the user
             return {
                 "error": "ORCID required for high-precision tracking.",
                 "instruction": f"I see you want to search for '{name}'. To ensure I don't show you papers from a different researcher with the same name, please provide their 16-digit ORCID iD first."
@@ -102,7 +105,7 @@ def search_author_recent_work(orcid: str = None, name: str = None, days_back: in
             sort_key = list(date_parts)
             while len(sort_key) < 3: sort_key.append(1)
             
-            # SAFETY GATE: 2025/2026 science only
+            # SAFETY GATE: 2025/2026 science only. Change the timegate here
             if sort_key[0] < (now.year - 1):
                 continue
 
@@ -152,7 +155,6 @@ def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliati
         if not orcid:
             return {"error": "I need an ORCID to uniquely identify who to remove."}
         
-        # This is where the agent calls the class method we just fixed
         success = registry.remove_author(orcid) 
         
         if success:
@@ -169,7 +171,6 @@ def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliati
         if not tracked:
             return {"message": "Your watchlist is currently empty."}
         
-        # In the new logic, the key is the ORCID, and the value is the author data dict
         return {
             "count": len(tracked),
             "authors": [

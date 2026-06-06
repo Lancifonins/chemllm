@@ -43,7 +43,6 @@ def call_function(function_call, verbose=False):
             ],
         )
     
-    # 1. Prepare the arguments
     args = dict(function_call.args) if function_call.args else {}
 
     args["working_directory"] = "."  # Default working directory for all functions; can be overridden for specific functions below
@@ -51,13 +50,12 @@ def call_function(function_call, verbose=False):
     file_system_tools = ["get_file_content", "get_files_info", "run_python_file", "write_file"]
     
     if function_name in file_system_tools:
-        args["working_directory"] = "."  # or any specific directory you want to restrict to
-
+        args["working_directory"] = "." 
     try:
         result = function_map[function_name](**args)
         function_result = str(result)
     except TypeError as e:
-        # This catches if Gemini or the injector sends wrong arguments
+        # Catches if Gemini or the injector sends wrong arguments
         function_result = f"Argument Error: {str(e)}"
     except Exception as e:
         function_result = f"Execution Error: {str(e)}"

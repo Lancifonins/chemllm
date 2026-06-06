@@ -1,16 +1,20 @@
+import os
+import requests
+
+from google import genai
+from google.genai import types
+
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdBase
 from rdkit import RDLogger
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
-import os
-import requests
-from google import genai
-from google.genai import types
+
 from functions.chem_tools.get_chem_info import get_compound_by_name
 
-RDLogger.DisableLog('rdApp.*')
+#Use when debugging
+#RDLogger.DisableLog('rdApp.*')
 
 def export_reaction_canvas(chemical_names: list, filename: str = "reaction_layout.sdf", **kwargs) -> dict:
     """
@@ -126,7 +130,7 @@ def draw_reaction(reactants: list, products: list, reagents: list = None, filena
                 conf = mol.GetConformer()
                 
                 # --- THE ULTIMATE FIX: Manual Coordinate Shift ---
-                # We bypass all Matrix/Transform modules and edit the Point3D directly
+                # Bypass all Matrix/Transform modules and edit the Point3D directly
                 for i in range(mol.GetNumAtoms()):
                     pos = conf.GetAtomPosition(i)
                     # Create a new point shifted by current_local_x

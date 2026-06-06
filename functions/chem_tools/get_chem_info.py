@@ -321,7 +321,6 @@ def get_compound_density(compound_name, **kwargs):
     except Exception as e:
         return {"error": str(e)}
 
-# --- GEMINI SCHEMA ---
 schema_get_compound_density = types.FunctionDeclaration(
     name="get_compound_density",
     description=(

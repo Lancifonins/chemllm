@@ -8,8 +8,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from inter_ui.sidebar import render_sidebar
 from inter_ui.chat_ui import render_chat_history
 
-# 1. Path routing
-
 from functions.get_response import get_response
 
 # --- PAGE CONFIG ---
@@ -21,10 +19,10 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 # --- RENDER UI COMPONENTS ---
-# 1. Draw the sidebar (and catch any button clicks)
+# Draw the sidebar (and catch any button clicks)
 action_prompt = render_sidebar()
 
-# 2. Draw the existing conversation
+# Draw the existing conversation
 render_chat_history()
 
 # --- CHAT INPUT & EXECUTION ---
@@ -33,16 +31,16 @@ user_input = st.chat_input("Ask ChemLLM to research or extract a structure...")
 prompt = action_prompt or user_input
 
 if prompt:
-    # 1. Show the user's message immediately
+    # Show the user's message immediately
     with st.chat_message("user"):
         st.markdown(prompt)
         
-    # 2. Add to memory
+    # Add to memory
     st.session_state.messages.append(
         types.Content(role="user", parts=[types.Part(text=prompt)])
     )
     
-    # 3. Call backend
+    # Call backend
     with st.chat_message("assistant"):
         with st.spinner("Agent is thinking and executing tools..."):
             try:

@@ -50,7 +50,9 @@ available_functions = types.Tool(
         schema_get_input_structure_info,
         schema_get_cas_from_cid,
         schema_check_commercial_availability,
+        #chemistry visual tools
         schema_image_to_cdxml,
+        schema_image_to_cas,
         #literature searching tools
         schema_get_paper_link_by_doi,
         schema_search_author_recent_work,
@@ -84,7 +86,9 @@ call_function_map = {
     "get_input_structure_info": get_input_structure_info,
     "get_cas_from_cid": get_cas_from_cid,
     "check_commercial_availability": check_commercial_availability,
+    #chemistry visual tools
     "image_to_cdxml": image_to_cdxml,
+    "image_to_cas":image_to_cas,
     #literature searching tools
     "get_paper_link_by_doi": get_paper_link_by_doi,
     "search_author_recent_work": search_author_recent_work,

@@ -1,16 +1,20 @@
+import os
+import requests
+
+from google import genai
+from google.genai import types
+
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdBase
 from rdkit import RDLogger
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
-import os
-import requests
-from google import genai
-from google.genai import types
+
 from functions.chem_tools.get_chem_info import get_compound_by_name
 
-RDLogger.DisableLog('rdApp.*')
+#Use when debugging:
+#RDLogger.DisableLog('rdApp.*')
 
 def export_to_chemdraw(name_or_smiles: str, filename: str = "molecule.sdf", **kwargs) -> dict:
     try:
@@ -122,8 +126,8 @@ def batch_export_sdfs(chemical_names: list, **kwargs) -> dict:
     errors = []
     
     for name in chemical_names:
-        # We reuse our existing function for each name
-        # We sanitize the filename by replacing spaces with underscores
+        # Reuse existing function for each name
+        # Sanitizing the filename by replacing spaces with underscores
         safe_filename = name.lower().replace(" ", "_") + ".sdf"
         res = export_to_chemdraw(name_or_smiles=name, filename=safe_filename)
         
@@ -156,7 +160,6 @@ schema_batch_export_sdfs = types.FunctionDeclaration(
     )
 )
 
-
 def export_combined_canvas(chemical_names: list, filename: str = "combined_drawing.sdf", **kwargs) -> dict:
     """
     Merges multiple chemicals into a SINGLE drawing on a SINGLE canvas.
@@ -171,7 +174,7 @@ def export_combined_canvas(chemical_names: list, filename: str = "combined_drawi
     
     try:
         for name in chemical_names:
-            # 1. Reuse your existing name-to-SMILES lookup logic
+            # 1. Reuse existing name-to-SMILES lookup logic
             base_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound"
             res = requests.get(f"{base_url}/name/{name}/property/SMILES/JSON", timeout=5)
             

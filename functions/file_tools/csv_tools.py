@@ -15,7 +15,6 @@ def search_csv(column_name, search_term,file_path="input_files/inv.csv"):
             return {"error": f"Column '{column_name}' does not exist. Available columns: {list(df.columns)}"}
             
         # Perform a case-insensitive text search
-        # We convert to string to ensure numbers don't break the .str accessor
         results = df[df[column_name].astype(str).str.contains(str(search_term), case=False, na=False)]
         
         if results.empty:
@@ -45,16 +44,14 @@ def check_inventory(cas_number, **kwargs):
     """A specialized wrapper that only checks the local lab inventory for a CAS number."""
     file_path = "input_files/inv.csv"
     
-    # We reuse the generic search_csv logic you already wrote!
     result = search_csv(file_path=file_path, column_name="CAS Number", search_term=cas_number)
     
-    # Make the AI's response a bit more natural if it's missing
+    # Make the AI's response when it's missing
     if result.get("success") and "message" in result:
          return {"inventory_status": f"CAS {cas_number} is NOT in the lab inventory."}
          
     return result
 
-# --- NEW TAILORED SCHEMA ---
 schema_check_inventory = types.FunctionDeclaration(
     name="check_inventory",
     description="Checks the local laboratory inventory to see if a specific chemical is in stock.",
@@ -69,3 +66,4 @@ schema_check_inventory = types.FunctionDeclaration(
         required=["cas_number"]
     )
 )
+

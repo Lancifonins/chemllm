@@ -1,3 +1,10 @@
+import os
+import requests
+import time
+
+from google import genai
+from google.genai import types
+
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdBase
@@ -5,14 +12,12 @@ from rdkit import RDLogger
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
 from rdkit.Chem import rdmolfiles, Descriptors, rdMolDescriptors
-import os
-import requests
-import time
-from google import genai
-from google.genai import types
+
+import urllib.parse
+
 from functions.chem_tools.get_chem_info import get_compound_by_name
 from functions.chem_tools.chem_files import export_to_chemdraw
-import urllib.parse
+
 
 
 def read_chemdraw_input(filename="single_mol_file.sdf", **kwargs):

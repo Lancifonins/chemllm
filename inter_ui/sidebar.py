@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 
 @st.dialog("Search by CAS Number")
@@ -21,22 +22,45 @@ def render_sidebar():
     
     if "cas_action_prompt" in st.session_state and st.session_state.cas_action_prompt:
         action_prompt = st.session_state.cas_action_prompt
-        # Clear it immediately so it doesn't loop forever
         st.session_state.cas_action_prompt = None
 
     with st.sidebar:
+
         st.header("⚡ Quick Actions")
         st.divider()
-        
+
         if st.button("📚 Latest Papers", use_container_width=True):
             action_prompt = "Find the latest papers from the people in the watchlist and format the links."
             
-        if st.button("🔍 Search for Chemical", use_container_width=True):
+        if st.button("🔍 Search Chemical Inventory", use_container_width=True):
             cas_search_dialog()
 
         if st.button("⚠️ Check GHS Hazards", use_container_width=True):
             action_prompt = "What are the GHS safety hazards for the most recent compound we discussed?"
+
+        st.divider()
+
+        st.header("🧰 Visual Processing")
+        uploaded_image = st.file_uploader("Upload Chemical Image", type=["png", "jpg", "jpeg"])
+        if uploaded_image:
+            os.makedirs("export", exist_ok=True)
+            temp_path = os.path.join("export", "current_upload.png")
             
-        
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_image.getbuffer())
+                
+        st.success("Image will be loaded into Agent Memory.")
+            
+        col1, col2 = st.columns(2)
+            
+        with col1:
+            if st.button("Extract .mol", use_container_width=True):
+                action_prompt = f"Extract the chemical structure from the image at {temp_path} and give me the ChemDraw file."
+                    
+        with col2:
+            if st.button("Get CAS", type="primary", use_container_width=True):
+                action_prompt = f"Run the image_to_cas tool on the image located at {temp_path}."
+
+
             
     return action_prompt

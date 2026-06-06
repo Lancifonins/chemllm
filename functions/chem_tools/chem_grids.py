@@ -1,17 +1,21 @@
+import os
+import re
+import requests
+
+from google import genai
+from google.genai import types
+
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdBase
 from rdkit import RDLogger
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
-import os
-import re
-import requests
-from google import genai
-from google.genai import types
+
 from functions.chem_tools.get_chem_info import get_compound_by_name
 
-RDLogger.DisableLog('rdApp.*')
+#Use when debugging:
+#RDLogger.DisableLog('rdApp.*')
 
 def get_mol_data(name, label_type):
     """Fetches SMILES and CAS, ensuring a 2D conformer is generated."""

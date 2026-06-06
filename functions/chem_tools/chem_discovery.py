@@ -1,18 +1,25 @@
+import os
+import requests
+import time
+
+from google import genai
+from google.genai import types
+
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdBase
 from rdkit import RDLogger
 from rdkit.Chem import Draw
 from rdkit.Chem.Draw import rdMolDraw2D
-import os
-import requests
-import time
+
 import urllib.parse
-from google import genai
-from google.genai import types
+
+
 from functions.chem_tools.get_chem_info import *
 from functions.chem_tools.chem_files import *
 from functions.chem_tools.chem_file_utils import *
+
+#Use when debugging:
 #RDLogger.DisableLog('rdApp.*')
 
 def search_by_structure_file(max_results: int = 5, **kwargs):
@@ -35,7 +42,7 @@ def search_by_structure_file(max_results: int = 5, **kwargs):
         
         list_key = res.json().get('Waiting', {}).get('ListKey')
         
-        # 2. Poll for CIDs
+        # 2. Poll for CIDs (The CAS search tool is too buggy so CID is deployed as a bridge)
         cids_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/listkey/{list_key}/cids/JSON"
         cids = []
         for _ in range(10):
