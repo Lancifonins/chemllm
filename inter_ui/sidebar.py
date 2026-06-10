@@ -61,6 +61,4 @@ def render_sidebar():
             if st.button("Get CAS", type="primary", use_container_width=True):
                 action_prompt = f"Run the image_to_cas tool on the image located at {temp_path}."
 
-
-            
     return action_prompt

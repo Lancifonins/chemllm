@@ -44,7 +44,6 @@ def read_chemdraw_input(filename="single_mol_file.sdf", **kwargs):
     except Exception as e:
         return None, f"SDF Error: {str(e)}"
 
-    
 schema_read_chemdraw_input = types.FunctionDeclaration(
     name="read_chemdraw_input",
     description="Reads the primary structural input from 'input_files/single_mol_file.sdf'. Returns the chemical formula, molecular weight, and SMILES string to verify the drawing is correct.",

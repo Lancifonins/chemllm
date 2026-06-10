@@ -11,8 +11,13 @@ wheels/
 .conda
 environment.yml
 
+#User information
+auth_config.yaml
+my_hash.txt
 
 input_files/
 tests/
+
+inter_ui/hash_maker.py
 
 

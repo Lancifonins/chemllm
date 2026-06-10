@@ -174,7 +174,7 @@ def export_combined_canvas(chemical_names: list, filename: str = "combined_drawi
     
     try:
         for name in chemical_names:
-            # 1. Reuse existing name-to-SMILES lookup logic
+            # Use existing name-to-SMILES lookup logic
             base_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound"
             res = requests.get(f"{base_url}/name/{name}/property/SMILES/JSON", timeout=5)
             
@@ -183,7 +183,6 @@ def export_combined_canvas(chemical_names: list, filename: str = "combined_drawi
                 mol = Chem.MolFromSmiles(smiles)
                 
                 if mol:
-                    # 2. Merge logic
                     if combined_mol is None:
                         combined_mol = mol
                     else:
@@ -193,11 +192,10 @@ def export_combined_canvas(chemical_names: list, filename: str = "combined_drawi
         if combined_mol is None:
             return {"error": "No valid molecules were found to combine."}
 
-        # 3. Generate coordinates for the ENTIRE group at once
-        # This prevents them from being drawn directly on top of each other
+        # Generate coordinates for the whole group at once, preventing them from being drawn stacked
         AllChem.Compute2DCoords(combined_mol)
         
-        # 4. Save to the exports folder
+        # Save to the exports folder
         if not filename.endswith(".sdf"):
             filename += ".sdf"
         full_path = os.path.join(export_dir, filename)
