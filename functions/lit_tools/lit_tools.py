@@ -3,11 +3,11 @@ import requests
 from google import genai
 from google.genai import types
 
+import streamlit as st
+
 from datetime import datetime, timedelta
 
 from modules.author import *
-
-registry = AuthorRegistry()
 
 def get_paper_link_by_doi(doi: str, **kwargs):
     """
@@ -127,7 +127,7 @@ def search_author_recent_work(orcid: str = None, name: str = None, days_back: in
     except Exception as e:
         return {"error": f"Search failed: {str(e)}"}
 
-def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliation: str = None, days_back: int = 3, **kwargs):
+def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliation: str = None, days_back: int = 500, **kwargs):
     """
     Unified management of your research tracking registry (ORCID-primary).
     Actions: 
@@ -136,6 +136,12 @@ def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliati
     - 'list': Shows everyone on your watchlist.
     - 'update': Scans the entire registry for new 2026 publications.
     """
+
+    #Check the user info.
+    username = st.session_state.get('username')
+    if not username:
+        return {"error": "System Error: No active user session detected."}
+    registry = AuthorRegistry(username=username)
     
     if action == "update":
         # Scans registry using the ORCID-loop in registry.check_all_updates
@@ -163,7 +169,6 @@ def manage_watchlist(action: str, orcid: str = None, name: str = None, affiliati
             return {"message": f"ORCID {orcid} was not found in your registry."}
     
     elif action == "clear":
-        # No ORCID or Name required for this action
         return {"message": registry.clear_registry()}
     
     elif action == "list":

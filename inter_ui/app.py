@@ -26,6 +26,10 @@ st.set_page_config(page_title="ChemLLM Agent", page_icon="🧪", layout="centere
 
 render_top_bar(name, authenticator)
 
+# --- LOAD PERSONALIZED CONTENT ---
+username = st.session_state.get('username')
+active_registry = AuthorRegistry(username=username)
+
 # --- INITIALIZE MEMORY ---
 if "messages" not in st.session_state:
     st.session_state.messages = []

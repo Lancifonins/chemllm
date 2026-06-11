@@ -11,7 +11,6 @@ def render_signup(authenticator, config):
             
             # Assign default attributes to the new user
             config['credentials']['usernames'][new_username]['role'] = 'researcher'
-            config['credentials']['usernames'][new_username]['followed_authors'] = []
             
             # Save the new user info permanently into the YAML file
             with open('auth_config.yaml', 'w') as file:

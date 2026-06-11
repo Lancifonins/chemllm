@@ -7,14 +7,19 @@ from dataclasses import dataclass, asdict
 
 @dataclass
 class TrackedAuthor:
-    orcid: str  # Now the primary identifier
+    orcid: str 
     name: str
     affiliation: Optional[str] = None
     last_doi_seen: Optional[str] = None
 
 class AuthorRegistry:
-    def __init__(self, filename="watchlist.json"):
-        self.filename = filename
+    def __init__(self, username: str):
+        self.username = username
+        self.save_dir = "data/watchlists"
+        os.makedirs(self.save_dir, exist_ok=True)
+        
+        self.filename = os.path.join(self.save_dir, f"{self.username}_watchlist.json")
+        
         self.watchlist: Dict[str, dict] = self.load()
 
     def load(self):
@@ -31,30 +36,22 @@ class AuthorRegistry:
             json.dump(self.watchlist, f, indent=4)
 
     def clear_registry(self):
-        """
-        Deletes every entry in the watchlist and resets the JSON file.
-        Returns a confirmation message.
-        """
         count = len(self.watchlist)
         if count == 0:
             return "Your watchlist is already empty."
-        
-        # Reset the dictionary and save the empty state
         self.watchlist = {}
         self.save()
-        
         return f"Success. Cleared {count} authors from your registry."
 
-    def live_search(self, orcid: Optional[str] = None, name: Optional[str] = None, days_back: int = 180):
+    # Functions declaration after this line.
+
+    def live_search(self, orcid: Optional[str] = None, name: Optional[str] = None, days_back: int = 500):
         url = "https://api.crossref.org/works"
         now = datetime.now()
-        
-        # 1. API FILTER: Use 'created' date to find what's new in the system
-        # This catches ASAP papers that don't have a 'print' date yet.
         created_threshold = (now - timedelta(days=days_back)).strftime('%Y-%m-%d')
         filters = [f"from-created-date:{created_threshold}"]
         
-        params = {"rows": 30} # Grab a bigger pool to ensure we find the 2026 gems
+        params = {"rows": 30}
         
         if orcid:
             filters.append(f"orcid:{orcid}")
@@ -71,16 +68,12 @@ class AuthorRegistry:
             
             extracted = []
             for i in items:
-                # 2. DATE PARSING: Get the best possible human-readable date
                 p_date = i.get('published-online') or i.get('published-print') or i.get('issued') or i.get('created')
                 date_parts = p_date.get('date-parts', [[0, 0, 0]])[0]
-                
-                # Normalize to [Year, Month, Day]
                 sort_key = list(date_parts)
                 while len(sort_key) < 3: sort_key.append(1)
-                
-                # 3. SAFETY GATE: Ignore anything older than 2025
-                if sort_key[0] < (now.year - 1):
+
+                if sort_key[0] < (now.year - 3):
                     continue
 
                 extracted.append({
@@ -91,10 +84,9 @@ class AuthorRegistry:
                     "display_date": "-".join(map(str, date_parts))
                 })
 
-            # 4. THE PERFECT SORT: Newest Year -> Newest Month -> Newest Day
             extracted.sort(key=lambda x: x['date_array'], reverse=True)
             
-            return extracted[:5] # Show only the 5 most recent
+            return extracted[:5]
         except Exception as e:
             print(f"API Error: {e}")
             return []
@@ -108,14 +100,13 @@ class AuthorRegistry:
             return True
         return False
 
-    def check_all_updates(self, days_back=3):
+    def check_all_updates(self, days_back=500):
         """Orchestrates the bulk update using ORCIDs."""
         if not self.watchlist:
             return {"message": "Registry is empty."}
 
         report = {}
         for orcid, data in self.watchlist.items():
-            # Pass the ORCID as the primary search term
             updates = self.live_search(orcid=orcid, days_back=days_back)
             if updates:
                 report[data['name']] = updates

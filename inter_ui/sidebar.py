@@ -1,6 +1,8 @@
 import os
 import streamlit as st
 
+from modules.author import *
+
 @st.dialog("Search by CAS Number")
 def cas_search_dialog():
     st.write("Enter the CAS number of the chemical you want to search:")
@@ -28,6 +30,13 @@ def render_sidebar():
 
         st.header("⚡ Quick Actions")
         st.divider()
+
+        #if st.sidebar.subheader("📚 My Author Watchlist"):
+            #if active_registry.watchlist:
+                #for orcid, data in active_registry.watchlist.items():
+                    #st.sidebar.markdown(f"- **{data['name']}**")
+            #else:
+                #st.sidebar.caption("You aren't tracking any authors yet.")
 
         if st.button("📚 Latest Papers", use_container_width=True):
             action_prompt = "Find the latest papers from the people in the watchlist and format the links."

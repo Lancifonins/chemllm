@@ -17,6 +17,7 @@ my_hash.txt
 
 input_files/
 tests/
+data/
 
 inter_ui/hash_maker.py
 
